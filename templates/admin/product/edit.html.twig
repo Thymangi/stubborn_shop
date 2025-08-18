@@ -1,0 +1,37 @@
+{# templates/admin/product/edit.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Modifier le produit{% endblock %}
+
+{% block body %}
+<div class="container py-3" style="max-width:720px">
+  <h1 class="h4">Modifier le produit</h1>
+
+  {# Aperçu image actuelle le cas échéant #}
+  {% if product.image %}
+    <div class="mb-3">
+      <label class="form-label">Image actuelle</label><br>
+      <img src="{{ asset('uploads/' ~ product.image) }}" alt="" style="max-width:200px; height:auto;">
+    </div>
+  {% endif %}
+
+  {{ form_start(form) }}
+    <div class="mb-3">{{ form_row(form.name) }}</div>
+    <div class="mb-3">{{ form_row(form.description) }}</div>
+    <div class="mb-3">{{ form_row(form.price) }}</div>
+    <div class="mb-3">{{ form_row(form.highlighted) }}</div>
+
+    {# Nouvelle image (optionnelle) #}
+    <div class="mb-3">{{ form_row(form.imageFile) }}</div>
+
+    <div class="row g-3">
+      <div class="col-sm-3">{{ form_row(form.sizeS) }}</div>
+      <div class="col-sm-3">{{ form_row(form.sizeM) }}</div>
+      <div class="col-sm-3">{{ form_row(form.sizeL) }}</div>
+      <div class="col-sm-3">{{ form_row(form.sizeXl) }}</div>
+    </div>
+
+    <button class="btn btn-success mt-3">Enregistrer</button>
+    <a href="{{ path('admin_product_list') }}" class="btn btn-link mt-3">Retour</a>
+  {{ form_end(form) }}
+</div>
+{% endblock %}

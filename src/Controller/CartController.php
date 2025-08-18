@@ -1,0 +1,192 @@
+<?php
+// src/Controller/CartController.php
+namespace App\Controller;
+
+use App\Entity\Product;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class CartController extends AbstractController
+{
+    /** Tailles autorisées dans le shop */
+    private const VALID_SIZES = ['S','M','L','XL'];
+
+    #[Route('/cart/add/{id}', name: 'cart_add', methods: ['POST'])]
+    public function add(
+        int $id,
+        Request $request,
+        SessionInterface $session,
+        EntityManagerInterface $em
+    ): Response {
+        $product = $em->getRepository(Product::class)->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException('Produit introuvable');
+        }
+
+        $size     = strtoupper((string) $request->request->get('size', ''));
+        $quantity = max(1, (int) $request->request->get('quantity', 1));
+
+        if (!in_array($size, self::VALID_SIZES, true)) {
+            $this->addFlash('cart.error', 'Veuillez choisir une taille valide.');
+            return $this->redirectToRoute('product_show', ['id' => $id]);
+        }
+
+        $available = $product->getStockForSize($size);
+
+        $cart = $session->get('cart', []);
+        $key  = $id . '_' . $size;
+
+        $existingQty = $cart[$key]['quantity'] ?? 0;
+        $wantedQty   = $existingQty + $quantity;
+
+        if ($available <= 0 || $wantedQty > $available) {
+            $this->addFlash(
+                'cart.error',
+                sprintf(
+                    "Stock insuffisant pour la taille %s (disponible: %d, demandé: %d).",
+                    $size,
+                    $available,
+                    $wantedQty
+                )
+            );
+            return $this->redirectToRoute('product_show', ['id' => $id]);
+        }
+
+        if (!isset($cart[$key])) {
+            $cart[$key] = [
+                'product_id' => $id,
+                'size'       => $size,
+                'quantity'   => 0,
+            ];
+        }
+
+        $cart[$key]['quantity'] = $wantedQty;
+
+        $session->set('cart', $cart);
+        $this->addFlash('cart.success', 'Produit ajouté au panier.');
+
+        // Reviens sur la page panier (PRG)
+        return $this->redirectToRoute('cart_show');
+    }
+
+    #[Route('/cart', name: 'cart_show', methods: ['GET'])]
+    public function show(SessionInterface $session, EntityManagerInterface $em): Response
+    {
+        $cart  = $session->get('cart', []);
+        $items = [];
+        $total = 0;
+
+        foreach ($cart as $row) {
+            $product = $em->getRepository(Product::class)->find($row['product_id']);
+            if (!$product) {
+                continue;
+            }
+
+            $subtotal = $product->getPrice() * $row['quantity'];
+            $items[] = [
+                'product'  => $product,
+                'size'     => $row['size'],
+                'quantity' => $row['quantity'],
+                'subtotal' => $subtotal,
+            ];
+            $total += $subtotal;
+        }
+
+        return $this->render('cart/index.html.twig', [
+            'items' => $items,
+            'total' => $total,
+        ]);
+    }
+
+    #[Route('/cart/update/{id}/{size}', name: 'cart_update', methods: ['POST'])]
+    public function update(
+        int $id,
+        string $size,
+        Request $request,
+        SessionInterface $session,
+        EntityManagerInterface $em
+    ): Response {
+        if (!$this->isCsrfTokenValid('cart_update_'.$id.'_'.$size, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        $size = strtoupper($size);
+        if (!in_array($size, self::VALID_SIZES, true)) {
+            $this->addFlash('cart.error', 'Taille invalide.');
+            return $this->redirectToRoute('cart_show');
+        }
+
+        $qty  = max(0, (int) $request->request->get('quantity', 0));
+        $product = $em->getRepository(Product::class)->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException('Produit introuvable');
+        }
+
+        $available = $product->getStockForSize($size);
+        $key = $id.'_'.$size;
+
+        $cart = $session->get('cart', []);
+
+        if ($qty === 0) {
+            unset($cart[$key]);
+            $this->addFlash('cart.success', 'Article supprimé.');
+        } else {
+            if ($qty > $available) {
+                $this->addFlash('cart.error', 'Stock insuffisant pour la quantité demandée.');
+                return $this->redirectToRoute('cart_show');
+            }
+            if (!isset($cart[$key])) {
+                $cart[$key] = ['product_id' => $id, 'size' => $size, 'quantity' => 0];
+            }
+            $cart[$key]['quantity'] = $qty;
+            $this->addFlash('cart.success', 'Panier mis à jour.');
+        }
+
+        $session->set('cart', $cart);
+        return $this->redirectToRoute('cart_show');
+    }
+
+    #[Route('/cart/remove/{id}/{size}', name: 'cart_remove', methods: ['POST'])]
+    public function remove(int $id, string $size, Request $request, SessionInterface $session): Response
+    {
+        $norm = strtoupper($size);
+
+        if (!in_array($norm, self::VALID_SIZES, true)) {
+            $this->addFlash('cart.error', 'Taille invalide.');
+            return $this->redirectToRoute('cart_show');
+        }
+
+        if (!$this->isCsrfTokenValid('cart_remove_'.$id.'_'.$norm, (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        $key  = $id.'_'.$norm;
+        $cart = $session->get('cart', []);
+
+        if (isset($cart[$key])) {
+            unset($cart[$key]);
+            $session->set('cart', $cart);
+            $this->addFlash('cart.success', 'Article supprimé.');
+        } else {
+            $this->addFlash('cart.info', 'Article déjà supprimé.');
+        }
+
+        return $this->redirectToRoute('cart_show');
+    }
+
+    #[Route('/cart/clear', name: 'cart_clear', methods: ['POST'])]
+    public function clear(Request $request, SessionInterface $session): Response
+    {
+        if (!$this->isCsrfTokenValid('cart_clear', $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        $session->remove('cart');
+        $this->addFlash('cart.success', 'Panier vidé.');
+        return $this->redirectToRoute('cart_show');
+    }
+}

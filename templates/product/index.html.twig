@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+{% block title %}Boutique Stubborn{% endblock %}
+
+{% block page_stylesheets %}
+  <link rel="stylesheet" href="{{ asset('assets/css/shop.css') }}">
+{% endblock %}
+
+{% block body %}
+<h1>Boutique</h1>
+
+<form method="get" action="{{ path('products_list') }}" class="p-filter">
+  <label for="price">Filtrer par prix :</label>
+  <select name="price" id="price" onchange="this.form.submit()">
+    <option value="">Tous</option>
+    <option value="1" {{ priceFilter == '1' ? 'selected' : '' }}>10-29€</option>
+    <option value="2" {{ priceFilter == '2' ? 'selected' : '' }}>29-35€</option>
+    <option value="3" {{ priceFilter == '3' ? 'selected' : '' }}>35-50€</option>
+  </select>
+  <noscript><button type="submit">Filtrer</button></noscript>
+</form>
+
+<div class="p-grid p-grid--shop">
+  {% for product in products %}
+    {% include 'partials/_product_card.html.twig' with { product: product, show_button: true } %}
+  {% else %}
+    <p>Aucun produit trouvé dans cette fourchette de prix.</p>
+  {% endfor %}
+</div>
+{% endblock %}

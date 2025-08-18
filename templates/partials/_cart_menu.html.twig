@@ -1,0 +1,25 @@
+{# templates/partials/_cart_menu.html.twig #}
+{% set cart = app.session.get('cart', []) %}
+{% set count = 0 %}
+{% for r in cart %}{% set count = count + (r.quantity ?? 0) %}{% endfor %}
+
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle position-relative" href="#" role="button"
+     data-bs-toggle="dropdown" aria-expanded="false">
+    Panier
+    <span class="badge bg-primary position-absolute top-0 start-100 translate-middle">
+      {{ count }}
+    </span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width:260px">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="small text-muted">Articles en attente</span>
+      <span class="badge bg-secondary">{{ count }}</span>
+    </div>
+    <div class="d-grid gap-2">
+      <a href="{{ path('cart_show') }}" class="btn btn-sm btn-outline-secondary">Voir le panier</a>
+      <a href="{{ path('app_order') }}" class="btn btn-sm btn-primary">Commander</a>
+    </div>
+  </ul>
+</li>
+

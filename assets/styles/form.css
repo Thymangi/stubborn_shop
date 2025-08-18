@@ -1,0 +1,29 @@
+/* Styles globaux pour tous les formulaires */
+form {
+    max-width: 400px;
+    margin: 20px auto;
+}
+
+form .form-group,
+form div {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    padding: 8px 16px;
+}

@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes commandes{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1 class="mb-4">Mes commandes</h1>
+
+    {% if orders is defined and orders|length > 0 %}
+        <div class="list-group">
+            {% for order in orders %}
+                <a class="list-group-item list-group-item-action" href="#">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Commande #{{ order.id }}</h5>
+                        <small>{{ order.createdAt|date('d/m/Y H:i') }}</small>
+                    </div>
+                    <p class="mb-1">Total : {{ order.totalTtc }} €</p>
+                    <small>Statut : {{ order.status }}</small>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Vous n'avez pas encore de commandes.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
