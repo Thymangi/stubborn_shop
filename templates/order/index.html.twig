@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commande{% endblock %}
+
+{% block body %}
+<h1 class="mb-3">Votre commande</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Produit</th>
+            <th>Taille</th>
+            <th class="text-end">Quantité</th>
+            <th class="text-end">Prix</th>
+            <th class="text-end">Sous-total</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in items %}
+        <tr>
+            <td>{{ row.product.name }}</td>
+            <td>{{ row.size }}</td>
+            <td class="text-end">{{ row.quantity }}</td>
+            <td class="text-end">{{ row.price|number_format(2, ',', ' ') }} €</td>
+            <td class="text-end">{{ row.subtotal|number_format(2, ',', ' ') }} €</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="4" class="text-end">Total</th>
+            <th class="text-end">{{ total|number_format(2, ',', ' ') }} €</th>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="d-flex gap-2">
+    <a href="{{ path('cart_show') }}" class="btn btn-secondary">Modifier le panier</a>
+    {# Bouton pour passer à l'étape suivante (adresse/paiement) #}
+    <a href="{{ path('checkout_start') }}" class="btn btn-primary">Valider et payer</a>
+</div>
+{% endblock %}

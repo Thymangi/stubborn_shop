@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>{{ product.name }}</h1>
+    {% set img = product.image %}
+{% if img is iterable %}
+  {% set imgPath = img[0] ?? '' %}
+{% else %}
+  {% set imgPath = img %}
+{% endif %}
+
+{% if imgPath %}
+  <img src="{{ asset('uploads/' ~ imgPath) }}" alt="{{ product.name }}" width="250">
+{% endif %}
+    <p>Prix : {{ product.price|number_format(2, ',', ' ') }} €</p>
+
+    <form method="post" action="{{ path('cart_add', {'id': product.id}) }}">
+        <label for="size">Taille :</label>
+        <select name="size" id="size" required>
+            {% if product.stock_s > 0 %}
+                <option value="S">S ({{ product.stock_s }} dispo)</option>
+            {% endif %}
+            {% if product.stock_m > 0 %}
+                <option value="M">M ({{ product.stock_m }} dispo)</option>
+            {% endif %}
+            {% if product.stock_l > 0 %}
+                <option value="L">L ({{ product.stock_l }} dispo)</option>
+            {% endif %}
+            {% if product.stock_xl > 0 %}
+                <option value="XL">XL ({{ product.stock_xl }} dispo)</option>
+            {% endif %}
+        </select>
+        <input type="number" name="quantity" min="1" value="1" required>
+        <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+    </form>
+</div>
+{% endblock %}

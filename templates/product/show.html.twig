@@ -1,0 +1,33 @@
+{# templates/product/show.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+<div class="container">
+  <h1>{{ product.name }}</h1>
+
+  <img src="{{ asset(product.image) }}" alt="{{ product.name }}" width="250">
+  <p>Prix : {{ product.price|number_format(2, ',', ' ') }} €</p>
+
+  <form method="post" action="{{ path('cart_add', {'id': product.id}) }}">
+    <label for="size">Taille :</label>
+    <select name="size" id="size" required>
+      {% if product.sizeS > 0 %}
+        <option value="S">S ({{ product.sizeS }} dispo)</option>
+      {% endif %}
+      {% if product.sizeM > 0 %}
+        <option value="M">M ({{ product.sizeM }} dispo)</option>
+      {% endif %}
+      {% if product.sizeL > 0 %}
+        <option value="L">L ({{ product.sizeL }} dispo)</option>
+      {% endif %}
+      {% if product.sizeXl > 0 %}
+        <option value="XL">XL ({{ product.sizeXl }} dispo)</option>
+      {% endif %}
+    </select>
+
+    <input type="number" name="quantity" min="1" value="1" required>
+    <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+  </form>
+</div>
+{% endblock %}

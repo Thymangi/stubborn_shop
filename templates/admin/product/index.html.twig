@@ -1,0 +1,64 @@
+{# templates/admin/product/index.html.twig #}
+
+{% extends 'base.html.twig' %}
+{% block title %}Produits — Admin{% endblock %}
+
+{% block body %}
+<div class="container py-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h5 m-0">Gestion des produits</h1>
+    <a href="{{ path('admin_product_new') }}" class="btn btn-sm btn-success">
+      + Ajouter
+    </a>
+  </div>
+
+  <table class="table table-sm table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>#</th>
+        <th>Nom</th>
+        <th>Prix</th>
+        <th>Stock total</th>
+        <th>Mise en avant</th>
+        <th style="width: 120px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for p in products %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.price|number_format(2, ',', ' ') }} €</td>
+        <td>{{ p.getTotalStock() }}</td>
+        <td>
+          {% if p.highlighted %}
+            <span class="badge bg-success">Oui</span>
+          {% else %}
+            <span class="badge bg-secondary">Non</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          <a href="{{ path('admin_product_edit', {id:p.id}) }}" 
+             class="btn btn-sm btn-outline-primary" title="Modifier">
+            ✏
+          </a>
+          <form method="post" 
+                action="{{ path('admin_product_delete', {id:p.id}) }}" 
+                class="d-inline"
+                onsubmit="return confirm('Confirmer la suppression ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ p.id) }}">
+            <button class="btn btn-sm btn-outline-danger" title="Supprimer">
+              🗑
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="6" class="text-center text-muted small">Aucun produit trouvé.</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

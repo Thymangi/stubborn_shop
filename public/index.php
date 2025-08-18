@@ -1,4 +1,5 @@
 <?php
+// public/index.php
 
 use App\Kernel;
 

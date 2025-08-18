@@ -1,0 +1,51 @@
+{# templates/security/login.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+
+<h1>Connexion</h1>
+
+{% if error %}
+    <div class="alert alert-danger">
+        {{ error.messageKey|trans(error.messageData, 'security') }}
+    </div>
+{% endif %}
+
+<form method="post" action="{{ path('app_login') }}">
+    <label for="inputEmail">Email</label>
+    <input
+        type="email"
+        id="inputEmail"
+        name="email"
+        value="{{ last_username }}"
+        required
+        autofocus
+    />
+
+    <label for="inputPassword">Mot de passe</label>
+    <input
+        type="password"
+        id="inputPassword"
+        name="password"   {# <-- IMPORTANT : "password" (pas "_password") #}
+        required
+    />
+
+    {# CSRF token requis si enable_csrf: true dans security.yaml #}
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+    {# optionnel: forcer la redirection post-login #}
+    <input type="hidden" name="_target_path" value="/">
+
+    <button type="submit">Se connecter</button>
+
+    <p><a href="{{ path('app_register') }}">Créer un compte</a></p>
+    <div>
+    <label>
+        <input type="checkbox" name="_remember_me" checked>
+        Rester connecté
+    </label>
+</div>
+</form>
+{% endblock %}

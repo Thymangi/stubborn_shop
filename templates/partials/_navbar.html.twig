@@ -1,0 +1,101 @@
+{# templates/partials/_navbar.html.twig #}
+{% set isLogged = app.user is not null %}
+
+{# -- Compteur panier (toujours défini) -- #}
+{% set count = 0 %}
+{% if isLogged %}
+  {% set cart = app.session.get('cart', []) %}
+  {% for r in cart %}
+    {% set count = count + (r.quantity ?? 0) %}
+  {% endfor %}
+{% endif %}
+
+<nav class="navbar navbar-expand-lg navbar-stubborn">
+  <div class="container-fluid">
+
+    {# -- Brand -- #}
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('home') }}">
+      <img src="{{ asset('assets/img/stubborn-logo.svg') }}" alt="Stubborn" class="logo-stubborn">
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar" aria-expanded="false" aria-label="Basculer la navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      {# -- Liens de gauche -- #}
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{{ path('home') }}">Accueil</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ path('products_list') }}">Boutique</a></li>
+      </ul>
+
+      {# -- Liens de droite -- #}
+      <ul class="navbar-nav mb-2 mb-lg-0">
+
+        {# ================= Panier (connecté uniquement) ================= #}
+        {% if isLogged %}
+          <li class="nav-item dropdown me-2">
+            <a class="nav-link dropdown-toggle position-relative" href="#" id="cartDropdown" role="button"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              Panier
+              <span class="badge bg-primary position-absolute top-0 start-100 translate-middle">
+                {{ count }}
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="cartDropdown" style="min-width:260px">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-muted">Articles en attente</span>
+                <span class="badge bg-secondary">{{ count }}</span>
+              </div>
+              <div class="d-grid gap-2">
+                <a href="{{ path('cart_show') }}" class="btn btn-sm btn-outline-secondary">Voir le panier</a>
+                <a href="{{ path('app_order') }}"
+                   class="btn btn-sm btn-primary {% if count == 0 %}disabled{% endif %}">Commander</a>
+              </div>
+            </ul>
+          </li>
+        {% endif %}
+
+        {# ================= Compte / Connexion ================= #}
+        {% if isLogged %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              Bonjour {{ app.user.name ?? app.user.username ?? app.user.email }}
+              {% if is_granted('ROLE_ADMIN') %}<span class="badge bg-danger ms-1">Admin</span>{% endif %}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+              <li><a class="dropdown-item" href="{{ path('user_profile') }}">Mon profil</a></li>
+              <li><a class="dropdown-item" href="{{ path('user_profile_edit') }}">Modifier mon profil</a></li>
+              <li><a class="dropdown-item" href="{{ path('user_orders') }}">Mes commandes</a></li>
+
+              {% if is_granted('ROLE_ADMIN') %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item fw-semibold text-danger" href="{{ path('admin_dashboard') }}">Espace admin</a></li>
+              {% endif %}
+
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{{ path('app_logout') }}" class="px-3 m-0">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                  <button type="submit" class="dropdown-item text-danger p-0">Déconnexion</button>
+                </form>
+              </li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button"
+               data-bs-toggle="dropdown" aria-expanded="false">Connexion</a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
+              <li><a class="dropdown-item" href="{{ path('app_login') }}">Connexion utilisateur</a></li>
+              <li><a class="dropdown-item" href="{{ path('app_register') }}">Créer un compte</a></li>
+            </ul>
+          </li>
+        {% endif %}
+
+      </ul>
+    </div>
+  </div>
+</nav>

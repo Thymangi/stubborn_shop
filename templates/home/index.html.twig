@@ -1,0 +1,32 @@
+{# templates/home/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block page_stylesheets %}
+  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}">
+{% endblock %}
+
+{% block body %}
+<h1 class="mb-3">Nouveautés</h1>
+
+{# products si présent, sinon featuredProducts, sinon [] #}
+{% set list = products|default(featuredProducts|default([])) %}
+
+<div class="p-grid p-grid--home">
+  {% for product in list %}
+    <article class="p-card">
+      <a href="{{ path('product_show', { id: product.id }) }}" class="text-decoration-none text-reset">
+        <div class="p-card__imgwrap">
+          <img class="p-card__img" src="{{ asset(product.image) }}" alt="{{ product.name }}">
+        </div>
+        <h3 class="p-card__title">{{ product.name }}</h3>
+        <div class="p-card__price">{{ product.price|number_format(2, ',', ' ') }} €</div>
+      </a>
+      <div class="p-card__actions">
+        <a href="{{ path('product_show', { id: product.id }) }}" class="btn btn-primary">Voir</a>
+      </div>
+    </article>
+  {% else %}
+    <p>Aucun produit.</p>
+  {% endfor %}
+</div>
+{% endblock %}

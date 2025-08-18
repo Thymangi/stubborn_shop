@@ -1,0 +1,16 @@
+{# templates/admin/security/register.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Créer un compte{% endblock %}
+
+{% block body %}
+<h1>Créer un compte</h1>
+
+{{ form_start(registrationForm) }}
+  {{ form_row(registrationForm.name) }}
+  {{ form_row(registrationForm.email) }}
+  {{ form_row(registrationForm.deliveryAddress) }}
+  {{ form_row(registrationForm.plainPassword) }}
+  {{ form_row(registrationForm.agreeTerms) }}
+  <button class="btn btn-primary mt-2">Valider</button>
+{{ form_end(registrationForm) }}
+{% endblock %}

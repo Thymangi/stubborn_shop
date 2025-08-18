@@ -1,0 +1,90 @@
+{# templates/cart/index.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Mon panier{% endblock %}
+
+{% block body %}
+<h1>Mon panier</h1>
+
+{# --- Flashes spécifiques au panier --- #}
+{% for m in app.flashes('cart.success') %}
+  <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+    {{ m }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
+{% for m in app.flashes('cart.error') %}
+  <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+    {{ m }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
+{% for m in app.flashes('cart.info') %}
+  <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+    {{ m }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
+
+{% if items is empty %}
+  <p>Votre panier est vide.</p>
+  <a href="{{ path('products_list') }}" class="btn btn-primary">Continuer vos achats</a>
+{% else %}
+
+  <ul class="list-group mb-3">
+    {% for row in items %}
+      <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+        <div class="flex-grow-1">
+          <strong>{{ row.product.name }}</strong> — Taille {{ row.size }}<br>
+          {{ row.product.price|number_format(2, ',', ' ') }} € / u
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          {# Mettre à jour la quantité #}
+          <form method="post"
+                action="{{ path('cart_update', { id: row.product.id, size: row.size }) }}"
+                class="d-flex align-items-center gap-2 mb-0">
+            <input type="hidden" name="_token"
+                   value="{{ csrf_token('cart_update_' ~ row.product.id ~ '_' ~ row.size|upper) }}">
+            <input type="number" name="quantity" value="{{ row.quantity }}" min="0"
+                   class="form-control form-control-sm" style="width:90px">
+            <button class="btn btn-sm btn-outline-secondary">Mettre à jour</button>
+          </form>
+
+          {# Supprimer la ligne #}
+          <form method="post"
+                action="{{ path('cart_remove', { id: row.product.id, size: row.size }) }}"
+                class="mb-0">
+            <input type="hidden" name="_token"
+                   value="{{ csrf_token('cart_remove_' ~ row.product.id ~ '_' ~ row.size|upper) }}">
+            <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+          </form>
+        </div>
+
+        <span class="ms-3 fw-semibold">
+          {{ row.subtotal|number_format(2, ',', ' ') }} €
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+
+ <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+  <h4 class="mb-0">Total : {{ total|number_format(2, ',', ' ') }} €</h4>
+
+  <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center cart-actions">
+    <a href="{{ path('products_list') }}" class="btn btn-outline-secondary btn-eq">
+      Continuer les achats
+    </a>
+
+    <form method="post" action="{{ path('cart_clear') }}" class="m-0">
+      <input type="hidden" name="_token" value="{{ csrf_token('cart_clear') }}">
+      <button class="btn btn-outline-danger btn-eq">Vider le panier</button>
+    </form>
+
+    <a href="{{ path('app_order') }}" class="btn btn-primary btn-eq">
+      Commander
+    </a>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}
