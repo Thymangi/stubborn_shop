@@ -6,7 +6,7 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\OrderItem; // ✅ important
+use App\Entity\OrderItem;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -22,28 +22,34 @@ class Product
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\Column]
-    private ?bool $highlighted = null;
+    // NOT NULL + valeur par défaut côté PHP + défaut SQL
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $highlighted = false;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
-    // JSON: { "S": int, "M": int, "L": int, "XL": int }
-    #[ORM\Column(type: 'json')]
-    private array $stocks = [];
+    // JSON NOT NULL + défaut côté PHP
+    #[ORM\Column(type: 'json', options: ['default' => '[]'])]
+    private array $stocks = ['S'=>0,'M'=>0,'L'=>0,'XL'=>0];
 
-    /**
-     * @var Collection<int, OrderItem>
-     */
+    /** @var Collection<int, OrderItem> */
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'product')]
     private Collection $orderItems;
 
     public function __construct()
     {
         $this->orderItems = new ArrayCollection();
+
+        // Sécurise les clés si l’objet est désérialisé/chargé différemment
+        foreach (['S','M','L','XL'] as $k) {
+            if (!array_key_exists($k, $this->stocks)) {
+                $this->stocks[$k] = 0;
+            }
+        }
     }
 
     public function getId(): ?int { return $this->id; }
@@ -57,41 +63,43 @@ class Product
     public function getImage(): ?string
     {
         $img = $this->image;
+
         if (!$img) return null;
 
-    if (is_array($img)) {
-        $img = $img[0] ?? null;
-    } elseif (is_string($img)) {
-        $decoded = json_decode($img, true);
-        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-            $img = $decoded[0] ?? null;
+        // Si un tableau est stocké (cas migration)
+        if (is_array($img)) {
+            $img = $img[0] ?? null;
+        } elseif (is_string($img)) {
+            $decoded = json_decode($img, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $img = $decoded[0] ?? null;
+            }
         }
+
+        if (!is_string($img) || $img === '') return null;
+
+        // retire "public/" si présent
+        if (str_starts_with($img, 'public/')) {
+            $img = substr($img, 7);
+        }
+
+        // normalise le slash de tête
+        $img = ltrim($img, '/');
+
+        // si pas déjà "uploads/" ni URL absolue, préfixe
+        if (!preg_match('#^(uploads/|https?://)#i', $img)) {
+            $img = 'uploads/'.$img;
+        }
+
+        // évite uploads/uploads/...
+        $img = preg_replace('#^uploads/+uploads/+?#i', 'uploads/', $img);
+
+        return $img;
     }
 
-    if (!is_string($img) || $img === '') return null;
+    public function setImage(?string $image): static { $this->image = $image; return $this; }
 
-    // remove leading "public/"
-    if (str_starts_with($img, 'public/')) {
-        $img = substr($img, 7);
-    }
-    // remove any leading slash
-    $img = ltrim($img, '/');
-
-    // If it already starts with "uploads/" or is an absolute URL, keep it
-    if (!preg_match('#^(uploads/|https?://)#i', $img)) {
-        $img = 'uploads/'.$img;
-    }
-
-    // (bonus) collapse a possible duplicate "uploads/uploads/"
-    $img = preg_replace('#^uploads/+uploads/+?#i', 'uploads/', $img);
-
-    return $img;
-    
-}
-
-    public function setImage(string $image): static { $this->image = $image; return $this; }
-
-    public function isHighlighted(): ?bool { return $this->highlighted; }
+    public function isHighlighted(): bool { return $this->highlighted; }
     public function setHighlighted(bool $highlighted): static { $this->highlighted = $highlighted; return $this; }
 
     public function getDescription(): ?string { return $this->description; }
@@ -99,7 +107,13 @@ class Product
 
     /** @return array{S?:int,M?:int,L?:int,XL?:int} */
     public function getStocks(): array { return $this->stocks; }
-    public function setStocks(array $stocks): static { $this->stocks = $stocks; return $this; }
+    public function setStocks(array $stocks): static
+    {
+        // merge pour garantir les 4 clés
+        $defaults = ['S'=>0,'M'=>0,'L'=>0,'XL'=>0];
+        $this->stocks = array_merge($defaults, array_map('intval', $stocks));
+        return $this;
+    }
 
     public function getStockForSize(string $size): int
     {
@@ -108,26 +122,31 @@ class Product
 
     public function setStockForSize(string $size, int $qty): static
     {
-        $new = $this->stocks;        // copie
-        $new[$size] = max(0, $qty);    // modif
-        $this->stocks = $new;          // réassignation pour Doctrine 
+        $qty = max(0, (int)$qty);
+        $stocks = $this->stocks;    // copie
+        $stocks[$size] = $qty;
+        $this->stocks = $stocks;    // réassignation => Doctrine détecte le changement
         return $this;
     }
 
+    // Helpers lecture
     public function getSizeS(): int { return $this->getStockForSize('S'); }
     public function getSizeM(): int { return $this->getStockForSize('M'); }
     public function getSizeL(): int { return $this->getStockForSize('L'); }
     public function getSizeXl(): int { return $this->getStockForSize('XL'); }
 
+    // Helpers écriture (compat éventuelle)
+    public function setSizeS(int $q): static { return $this->setStockForSize('S', $q); }
+    public function setSizeM(int $q): static { return $this->setStockForSize('M', $q); }
+    public function setSizeL(int $q): static { return $this->setStockForSize('L', $q); }
+    public function setSizeXl(int $q): static { return $this->setStockForSize('XL', $q); }
+
     /** Total de stock toutes tailles confondues. */
     public function getTotalStock(): int
     {
-        if (!is_array($this->stocks) || $this->stocks === []) {
-            return $this->getSizeS() + $this->getSizeM() + $this->getSizeL() + $this->getSizeXl();
-        }
         $sum = 0;
         foreach ($this->stocks as $qty) {
-            $sum += (int) $qty;
+            $sum += (int)$qty;
         }
         return $sum;
     }

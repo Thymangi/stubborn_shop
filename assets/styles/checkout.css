@@ -1,0 +1,23 @@
+/* asets/styles/checkout.css */
+/* Actions de la page checkout */
+.checkout-actions {
+    display: flex;
+    gap: 0.75rem; /* espace horizontal entre les 2 boutons */
+    align-items: center; /* même hauteur visuelle des deux boutons */
+}
+
+/* Chaque “slot” prend la même largeur ; min 220px pour rester lisible */
+.checkout-actions > * {
+    flex: 1 0 220px;
+}
+
+/* Boutons : mêmes dimensions et centrage du texte */
+.checkout-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px; /* même hauteur des deux boutons */
+}
+.checkout-actions .btn {
+    width: 100%;
+}

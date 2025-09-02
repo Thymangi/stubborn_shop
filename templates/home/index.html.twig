@@ -1,32 +1,114 @@
 {# templates/home/index.html.twig #}
 {% extends 'base.html.twig' %}
+{% block title %}Accueil — Stubborn{% endblock %}
 
-{% block page_stylesheets %}
-  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}">
-{% endblock %}
+{# Laisse vide si tu n’as pas de CSS page-spécifique #}
+{% block page_stylesheets %}{% endblock %}
 
 {% block body %}
-<h1 class="mb-3">Nouveautés</h1>
+  <h1 class="display-6 mb-4">Nouveautés</h1>
 
-{# products si présent, sinon featuredProducts, sinon [] #}
-{% set list = products|default(featuredProducts|default([])) %}
+  {# si tu passes newProducts ou featuredProducts depuis le contrôleur #}
+  {% set products = newProducts is defined ? newProducts : (featuredProducts is defined ? featuredProducts : []) %}
 
-<div class="p-grid p-grid--home">
-  {% for product in list %}
-    <article class="p-card">
-      <a href="{{ path('product_show', { id: product.id }) }}" class="text-decoration-none text-reset">
-        <div class="p-card__imgwrap">
-          <img class="p-card__img" src="{{ asset(product.image) }}" alt="{{ product.name }}">
-        </div>
-        <h3 class="p-card__title">{{ product.name }}</h3>
-        <div class="p-card__price">{{ product.price|number_format(2, ',', ' ') }} €</div>
-      </a>
-      <div class="p-card__actions">
-        <a href="{{ path('product_show', { id: product.id }) }}" class="btn btn-primary">Voir</a>
+  <div class="row g-4">
+    {% for product in products %}
+      <div class="col-12 col-md-6 col-lg-4">
+        {% include 'partials/_product_card.html.twig' with { product: product } %}
       </div>
-    </article>
-  {% else %}
-    <p>Aucun produit.</p>
-  {% endfor %}
-</div>
+    {% else %}
+      <div class="col">
+        <div class="alert alert-secondary">Aucun produit pour le moment.</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <hr class="my-5">
+
+  {# ================= À PROPOS — STUBBORN ================= #}
+<section aria-labelledby="about-stubborn" class="mb-5">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4 p-lg-5">
+      <div class="row g-4 align-items-center">
+        {# Logo réduit, placé à gauche et cote à cote dès md #}
+        <div class="col-12 col-md-4 text-center text-md-start">
+          <img src="{{ asset('assets/img/logo.png') }}"
+               alt="Logo Stubborn"
+               class="img-fluid about-logo">
+          <div class="mt-2 small text-muted">Don't compromise on your look</div>
+        </div>
+
+        {# Présentation à droite #}
+        <div class="col-12 col-md-8">
+          <h2 id="about-stubborn" class="h4 mb-2">Stubborn</h2>
+          <p class="mb-3">
+            Une maison de streetwear née pour celles et ceux qui refusent de faire des compromis.
+            On crée des pièces nettes, durables et confortables, pensées pour la vraie vie .
+          </p>
+
+          <dl class="row mb-0 small">
+            <dt class="col-sm-3">Nom de la société</dt>
+            <dd class="col-sm-9">Stubborn</dd>
+
+            <dt class="col-sm-3">Adresse</dt>
+            <dd class="col-sm-9">Piccadilly Circus, London W1J 0DA, Royaume-Uni</dd>
+
+            <dt class="col-sm-3">Contact</dt>
+            <dd class="col-sm-9">
+              <a href="mailto:stubborn@blabla.com">stubborn@blabla.com</a>
+            </dd>
+
+            <dt class="col-sm-3">Slogan</dt>
+            <dd class="col-sm-9">Don't compromise on your look</dd>
+          </dl>
+        </div>
+      </div>
+
+      {# — Arguments de vente — #}
+      <div class="row g-3 mt-4">
+        <div class="col-6 col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="fw-semibold mb-1">Streetwear pointu</div>
+            <div class="text-muted small">Coupes maîtrisées, silhouettes actuelles, détails signature.</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="fw-semibold mb-1">Matières de qualité</div>
+            <div class="text-muted small">Coton premium, grammages solides, toucher doux et durable.</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="fw-semibold mb-1">Confection responsable</div>
+            <div class="text-muted small">Ateliers sélectionnés, production raisonnée, traçabilité.</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="fw-semibold mb-1">Drops limités</div>
+            <div class="text-muted small">Séries courtes, pièces exclusives, pas de surproduction.</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="fw-semibold mb-1">Livraison rapide</div>
+            <div class="text-muted small">Expédition soignée, suivi en ligne, retours simplifiés.</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+          <div class="border rounded-3 p-3 h-100">
+            <div class="fw-semibold mb-1">Communauté</div>
+            <div class="text-muted small">Collaborations, événements & inspis pour les passionné·e·s.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

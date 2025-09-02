@@ -13,6 +13,6 @@ class AdminDashboardController extends AbstractController
     #[Route('', name: 'admin_dashboard', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->render('admin/dashboard.html.twig');
+        return $this->redirectToRoute('admin_product_list');
     }
 }

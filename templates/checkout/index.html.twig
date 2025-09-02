@@ -36,11 +36,13 @@
     </tfoot>
 </table>
 
-<div class="d-flex gap-2">
-    <a href="{{ path('cart_show') }}" class="btn btn-secondary">Modifier le panier</a>
+<div class="checkout-actions">
+  <div class="checkout-item">
+    <a href="{{ path('cart_show') }}" class="btn btn-secondary w-100">Modifier le panier</a>
+  </div>
 
-    <form method="post" action="{{ path('checkout_create_session') }}">
-        <button type="submit" class="btn btn-primary">Payer avec Stripe</button>
-    </form>
+  <form method="post" action="{{ path('checkout_create_session') }}" class="checkout-item">
+    <button type="submit" class="btn btn-primary w-100">Payer avec Stripe</button>
+  </form>
 </div>
 {% endblock %}

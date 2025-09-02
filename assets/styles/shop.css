@@ -1,15 +1,14 @@
 /* public/assets/css/shop.css */
-/* ===== Grille Boutique ===== */
+/* ===== Grille ===== */
 .p-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: clamp(20px, 3vw, 32px);
     align-items: stretch;
 }
-
 .p-grid--shop {
     margin-top: 18px;
-    gap: clamp(28px, 4vw, 40px); /* un peu plus d’espace en boutique */
+    gap: clamp(28px, 4vw, 40px);
 }
 
 /* Filtre */
@@ -20,31 +19,31 @@
     margin-bottom: 16px;
 }
 
-/* ===== Carte produit unifiée (mêmes règles que home) ===== */
+/* ===== Carte produit ===== */
 .p-card {
-    height: 360px;
-    border: 1px solid #e8e8e8;
-    border-radius: 12px;
-    background: #fff;
-    padding: 12px;
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    gap: 10px;
+    height: 360px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
 }
 .p-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Image */
 .p-card__imgwrap {
     flex: 0 0 210px;
-    border-radius: 10px;
-    background: #f7f7f7;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #f7f7f7;
+    border-radius: 10px;
     overflow: hidden;
 }
 .p-card__img {
@@ -53,19 +52,215 @@
     object-fit: contain;
 }
 
-.p-card__title {
-    margin: 10px 0 4px;
-    font-weight: 600;
-    text-align: center;
-    font-size: 1rem;
-}
-.p-card__price {
-    text-align: center;
-    color: #157347;
-    font-weight: 700;
-    margin-bottom: 6px;
-}
-.p-card__actions {
+/* Bas de carte : Nom/Prix + bouton sur la même ligne, alignés en bas */
+.p-card__bottom {
+    margin-top: auto;
     display: flex;
+    align-items: flex-end; /* bas aligné avec le bouton */
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* Bouton "VOIR" compact et bien visible */
+.p-card__cta {
+    align-self: flex-end;
+    padding: 0.35rem 1rem; /* compact */
+    min-width: 88px; /* largeur proche du wireframe */
+    border-radius: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+@media (max-width: 576px) {
+    .p-card__cta {
+        padding: 0.4rem 0.9rem;
+    }
+}
+
+/* Bloc infos (gauche) */
+.p-card__meta {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    row-gap: 6px;
+}
+.p-card__row {
+    display: grid;
+    grid-template-columns: auto 1fr; /* libellé | valeur */
+    align-items: baseline;
+    column-gap: 12px;
+}
+/* rangée PRIX = 3 colonnes (label | valeur | bouton) */
+.p-card__row--price {
+    display: flex; /* override la grille pour cette ligne */
+    align-items: center;
+    gap: 12px;
+}
+
+.p-card__row--price .p-card__label {
+    flex: 0 0 auto; /* largeur naturelle */
+}
+
+.p-card__row--price .p-card__value {
+    flex: 1 1 auto; /* prend tout l'espace restant */
+    min-width: 0; /* IMPORTANT: autorise le rétrécissement */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* évite le retour à la ligne du prix */
+}
+
+.p-card__row--price .p-btn-see {
+    display: inline-flex; /* taille fixe + centrage */
+    align-items: center;
     justify-content: center;
+    height: 40px; /* ↑ hauteur */
+    min-width: 120px; /* ↑ largeur mini, style wireframe */
+    padding: 0 1rem; /* plus de “respiration” */
+    font-size: 0.95rem; /* texte un peu plus grand */
+    border-radius: 0.55rem; /* arrondi un peu plus marqué */
+    border-width: 2px; /* bouton plus présent */
+    flex: 0 0 auto; /* ne se compresse pas */
+}
+/* Si très petit écran, on réduit légèrement pour éviter le saut de ligne */
+@media (max-width: 380px) {
+    .p-card__row--price .p-btn-see {
+        height: 36px;
+        min-width: 100px;
+        font-size: 0.9rem;
+    }
+}
+.p-card__label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+.p-card__value {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.p-card__value--price {
+    font-weight: 700;
+    color: #157347;
+}
+
+/* Bouton (droite) */
+.p-btn-see {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border: 1px solid #0d6efd;
+    background: #0d6efd;
+    color: #fff;
+    border-radius: 0.4rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    text-decoration: none;
+    flex: 0 0 auto;
+}
+.p-btn-see:hover {
+    background: #0b5ed7;
+    border-color: #0b5ed7;
+}
+.p-btn-see:focus-visible {
+    outline: 3px solid rgba(13, 110, 253, 0.35);
+    outline-offset: 2px;
+}
+
+/* Utilitaire */
+.object-fit-contain {
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+}
+
+/* ===== Card fiche produit ===== */
+.p-show-card {
+    border-radius: 14px;
+}
+
+/* ===== Card centrée ===== */
+.p-show-card {
+    max-width: 1140px; /* centre + limite large */
+    margin-inline: auto;
+    border-radius: 14px;
+}
+
+/* ===== Cadre image ===== */
+.p-show__frame {
+    background: #f7f7f7;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    width: 100%;
+    /* plus souple qu'un .ratio : */
+    aspect-ratio: 4 / 3;
+}
+.p-show__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 20px;
+}
+
+/* ===== Bandeau infos haut ===== */
+/* 2 colonnes : gauche (Nom + Prix verticaux) | droite (tailles) */
+.p-show__topgrid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+@media (max-width: 991.98px) {
+    .p-show__topgrid {
+        grid-template-columns: 1fr; /* empilé en mobile */
+    }
+}
+
+/* Nom / Prix style "boutique" */
+.p-show__row {
+    display: grid;
+    grid-template-columns: auto 1fr; /* label | valeur */
+    column-gap: 12px;
+    align-items: baseline;
+    margin-bottom: 0.35rem;
+}
+.p-show__label {
+    color: #6c757d;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+.p-show__value {
+    font-weight: 700; /* en gras */
+}
+.p-show__title {
+    font-size: 1.15rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.p-show__price {
+    color: #157347; /* même vert que la grille boutique */
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+/* Tailles (liste) à droite */
+.p-show__sizes {
+    min-height: 2.875rem;
+}
+
+/* ===== Zone CTA bas ===== */
+.p-show__form {
+    margin-top: 14px;
+}
+.p-show__qty {
+    width: 140px;
+}
+.p-show__cta {
+    margin-top: 14px; /* bouton plus bas */
+    height: 54px; /* plus grand */
+    min-width: 280px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
 }

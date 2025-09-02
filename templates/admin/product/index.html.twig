@@ -1,64 +1,119 @@
-{# templates/admin/product/index.html.twig #}
-
 {% extends 'base.html.twig' %}
-{% block title %}Produits — Admin{% endblock %}
+{% block title %}Back-Office — Produits{% endblock %}
+
+{# si tu as une entrée Encore page-spécifique #}
+{# {% block page_stylesheets %}{{ encore_entry_link_tags('admin_product') }}{% endblock %} #}
 
 {% block body %}
-<div class="container py-3">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h5 m-0">Gestion des produits</h1>
-    <a href="{{ path('admin_product_new') }}" class="btn btn-sm btn-success">
-      + Ajouter
-    </a>
-  </div>
+<div class="container py-4 ap">
 
-  <table class="table table-sm table-hover align-middle">
-    <thead class="table-light">
-      <tr>
-        <th>#</th>
-        <th>Nom</th>
-        <th>Prix</th>
-        <th>Stock total</th>
-        <th>Mise en avant</th>
-        <th style="width: 120px;">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for p in products %}
-      <tr>
-        <td>{{ p.id }}</td>
-        <td>{{ p.name }}</td>
-        <td>{{ p.price|number_format(2, ',', ' ') }} €</td>
-        <td>{{ p.getTotalStock() }}</td>
-        <td>
-          {% if p.highlighted %}
-            <span class="badge bg-success">Oui</span>
-          {% else %}
-            <span class="badge bg-secondary">Non</span>
-          {% endif %}
-        </td>
-        <td class="text-end">
-          <a href="{{ path('admin_product_edit', {id:p.id}) }}" 
-             class="btn btn-sm btn-outline-primary" title="Modifier">
-            ✏
-          </a>
-          <form method="post" 
-                action="{{ path('admin_product_delete', {id:p.id}) }}" 
-                class="d-inline"
-                onsubmit="return confirm('Confirmer la suppression ?');">
-            <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ p.id) }}">
-            <button class="btn btn-sm btn-outline-danger" title="Supprimer">
-              🗑
-            </button>
-          </form>
-        </td>
-      </tr>
-    {% else %}
-      <tr>
-        <td colspan="6" class="text-center text-muted small">Aucun produit trouvé.</td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+  <h1 class="visually-hidden">Back-Office — Produits</h1>
+
+  {# ===== Ligne d’ajout ===== #}
+<div class="ap-row ap-row--new">
+  <div class="row g-3">
+    <div class="col-auto">
+      <div class="ap-thumb"><span class="text-muted small">Image</span></div>
+    </div>
+
+    <div class="col">
+      {# Grille: Nom + Prix ont des largeurs fixes, les 5 stocks prennent le reste #}
+      <div class="row g-2 ap-fields">
+        <div class="col-12 col-md-4 col-lg-4">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Nom du produit">
+        </div>
+        <div class="col-6 col-md-3 col-lg-3">
+          <label class="form-label">Prix</label>
+          <input type="text" class="form-control form-control-sm" placeholder="0,00 €">
+        </div>
+        <div class="col-6 col-md col-lg">
+          <label class="form-label">Stock XS</label>
+          <input type="text" class="form-control form-control-sm" placeholder="0">
+        </div>
+        <div class="col-6 col-md col-lg">
+          <label class="form-label">Stock S</label>
+          <input type="text" class="form-control form-control-sm" placeholder="0">
+        </div>
+        <div class="col-6 col-md col-lg">
+          <label class="form-label">Stock M</label>
+          <input type="text" class="form-control form-control-sm" placeholder="0">
+        </div>
+        <div class="col-6 col-md col-lg">
+          <label class="form-label">Stock L</label>
+          <input type="text" class="form-control form-control-sm" placeholder="0">
+        </div>
+        <div class="col-6 col-md col-lg">
+          <label class="form-label">Stock XL</label>
+          <input type="text" class="form-control form-control-sm" placeholder="0">
+        </div>
+      </div>
+
+      {# bouton SOUS les champs, centré, même taille que les autres #}
+      <div class="ap-actions ap-actions--right">
+        <a href="{{ path('admin_product_new') }}" class="btn btn-primary ap-btn">AJOUTER</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  {# ===== Lignes produit ===== #}
+  {% for p in products %}
+    <div class="ap-row">
+      <div class="row g-3">
+        <div class="col-auto">
+          <div class="ap-thumb">
+            <img src="{{ asset(p.image ?? 'assets/img/placeholder.png') }}" alt="{{ p.name }}">
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="row g-2 ap-fields">
+  <div class="col-12 col-md-4 col-lg-4">
+    <label class="form-label small mb-1">Nom</label>
+    <input type="text" class="form-control form-control-sm" value="{{ p.name }}" readonly>
+  </div>
+  <div class="col-6 col-md-3 col-lg-3">
+    <label class="form-label small mb-1">Prix</label>
+    <input type="text" class="form-control form-control-sm" value="{{ p.price|number_format(2, ',', ' ') }} €" readonly>
+  </div>
+  <div class="col-6 col-md col-lg">
+    <label class="form-label small mb-1">Stock XS</label>
+    <input type="text" class="form-control form-control-sm" value="{{ p.sizeXs ?? 0 }}" readonly>
+  </div>
+  <div class="col-6 col-md col-lg">
+    <label class="form-label small mb-1">Stock S</label>
+    <input type="text" class="form-control form-control-sm" value="{{ p.sizeS ?? 0 }}" readonly>
+  </div>
+  <div class="col-6 col-md col-lg">
+    <label class="form-label small mb-1">Stock M</label>
+    <input type="text" class="form-control form-control-sm" value="{{ p.sizeM ?? 0 }}" readonly>
+  </div>
+  <div class="col-6 col-md col-lg">
+    <label class="form-label small mb-1">Stock L</label>
+    <input type="text" class="form-control form-control-sm" value="{{ p.sizeL ?? 0 }}" readonly>
+  </div>
+  <div class="col-6 col-md col-lg">
+    <label class="form-label small mb-1">Stock XL</label>
+    <input type="text" class="form-control form-control-sm" value="{{ p.sizeXl ?? 0 }}" readonly>
+  </div>
+</div>
+
+          <div class="ap-actions ap-actions--right">
+            <form method="post" action="{{ path('admin_product_delete', { id: p.id }) }}"
+                  onsubmit="return confirm('Confirmer la suppression ?');" class="m-0">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ p.id) }}">
+              <button class="btn btn-outline-danger ap-btn">SUPPRIMER</button>
+               
+            </form>
+             <a href="{{ path('admin_product_edit', { id: p.id }) }}" class="btn btn-outline-secondary ap-btn">MODIFIER</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center text-muted small">Aucun produit trouvé.</div>
+  {% endfor %}
+
 </div>
 {% endblock %}

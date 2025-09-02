@@ -27,3 +27,11 @@ form input[type="password"] {
 form button {
     padding: 8px 16px;
 }
+/* Carte centrée propre */
+.form-card .form-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+.form-card .btn-lg {
+    padding: 0.6rem 1rem;
+}

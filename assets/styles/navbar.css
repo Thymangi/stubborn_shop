@@ -1,0 +1,115 @@
+/* ===== NAVBAR Stubborn – responsive  ===== */
+
+/* hauteurs de référence de la barre */
+:root {
+    --nav-h-sm: 60px; /* mobile/tablette */
+    --nav-h-lg: 68px; /* desktop */
+    --neon: #39ff14;
+    --near-black: #0b0b0b;
+}
+
+/* Fond vert identique partout */
+.navbar.stb-navbar {
+    background: var(--neon) !important;
+    border-bottom: 3px solid #19cc03 !important;
+}
+
+/* Alignement global */
+.navbar.stb-navbar .container-fluid {
+    display: flex;
+    align-items: center;
+    position: relative; /* pour le titre centré admin */
+}
+
+/* Bloc "brand" (logo + slogan) empilé, taille bornée */
+.stb-navbar__brand {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.2rem;
+    margin: 0;
+    line-height: 1;
+    /* largeur flex mais bornée pour éviter l’emprise totale sur mobile */
+    max-width: min(55vw, 260px);
+    overflow: hidden; /* sécurité anti-débordement */
+}
+
+/* Logo : s’adapte à la barre, JAMAIS height:100% */
+.stb-navbar__logo {
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: calc(
+        var(--nav-h-sm) - 10px
+    ); /* <= clé : on borne à la hauteur de nav */
+    max-width: 100%;
+    object-fit: contain;
+
+    /* cartouche blanc derrière */
+    background: #fff;
+    padding: 0.25rem 0.4rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Slogan sous le logo */
+.stb-navbar__slogan {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.1;
+    color: var(--near-black);
+    opacity: 0.85;
+    white-space: nowrap;
+}
+
+/* Titre centré (Back-Office) si tu l’utilises */
+.stb-navbar__center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+.stb-header-title,
+.stb-badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.6);
+    font-weight: 800;
+}
+
+/* Liens de nav sur fond vert */
+.navbar.stb-navbar .nav-link,
+.navbar.stb-navbar .navbar-brand {
+    color: var(--near-black) !important;
+    font-weight: 700;
+}
+.navbar.stb-navbar .navbar-toggler {
+    border-color: var(--near-black) !important;
+}
+.navbar.stb-navbar .navbar-toggler-icon {
+    filter: invert(0);
+}
+.navbar.stb-navbar .dropdown-menu {
+    border-color: #12c400;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* —— Desktop —————————————————————————— */
+@media (min-width: 992px) {
+    .stb-navbar__brand {
+        max-width: min(30vw, 300px);
+    }
+    .stb-navbar__logo {
+        max-height: calc(var(--nav-h-lg) - 12px);
+    }
+}
+
+/* —— Très petits écrans : on privilégie la lisibilité ———————— */
+@media (max-width: 360px) {
+    .stb-navbar__slogan {
+        display: none;
+    } /* optionnel : cache le slogan si trop serré */
+}

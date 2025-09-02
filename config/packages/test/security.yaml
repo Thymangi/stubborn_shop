@@ -1,0 +1,17 @@
+# config/packages/test/security.yaml
+security:
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        main:
+            lazy: true
+            provider: app_user_provider
+            # pas besoin de form_login ici pour les tests
+        admin:
+            pattern: ^/admin
+            lazy: true
+            provider: app_user_provider

@@ -22,24 +22,24 @@ final class CheckoutController extends AbstractController
         }
 
         $items = [];
-        $total = 0;
+        $total = 0.0;
 
         foreach ($cart as $row) {
-            $product = $em->getRepository(Product::class)->find($row['product_id']);
+            $product = $em->getRepository(Product::class)->find($row['product_id'] ?? 0);
             if (!$product) {
                 continue;
             }
 
-            $size      = (string) $row['size'];
-            $quantity  = (int) $row['quantity'];
+            $size     = (string) ($row['size'] ?? '');
+            $quantity = (int) ($row['quantity'] ?? 0);
             $available = $product->getStockForSize($size);
 
-            // Re-vérif stock
-            if ($quantity > $available) {
-                $this->addFlash(
-                    'danger',
-                    sprintf("Stock insuffisant pour %s (taille %s).", $product->getName(), $size)
-                );
+            if ($quantity <= 0 || $quantity > $available) {
+                $this->addFlash('danger', sprintf(
+                    "Stock insuffisant pour %s (taille %s).",
+                    $product->getName(),
+                    $size
+                ));
                 return $this->redirectToRoute('cart_show');
             }
 
@@ -56,7 +56,7 @@ final class CheckoutController extends AbstractController
             $total += $subtotal;
         }
 
-        if (empty($items)) {
+        if (!$items) {
             $this->addFlash('info', 'Votre panier ne contient plus d’articles disponibles.');
             return $this->redirectToRoute('cart_show');
         }
@@ -79,21 +79,49 @@ final class CheckoutController extends AbstractController
             return $this->redirectToRoute('cart_show');
         }
 
-        // Construire les line_items Stripe
+        // ----- BYPASS STRIPE EN TEST / CI -----
+        $isTestEnv = $this->getParameter('kernel.environment') === 'test';
+        $fakeFlag  = filter_var(
+            $_ENV['APP_FAKE_PAYMENT'] ?? getenv('APP_FAKE_PAYMENT') ?? '0',
+            FILTER_VALIDATE_BOOL
+        );
+
+        if ($isTestEnv || $fakeFlag) {
+            // on simule un succès de paiement
+            return $this->redirectToRoute('checkout_success');
+        }
+
+        // ----- Revérification du panier + construction des line items -----
         $lineItems = [];
         foreach ($cart as $row) {
-            $product = $em->getRepository(Product::class)->find($row['product_id']);
-            if (!$product) { continue; }
+            $productId = (int) ($row['product_id'] ?? 0);
+            $size      = (string) ($row['size'] ?? '');
+            $qty       = (int) ($row['quantity'] ?? 0);
+
+            $product = $em->getRepository(Product::class)->find($productId);
+            if (!$product || $qty <= 0) {
+                continue;
+            }
+
+            $available = $product->getStockForSize($size);
+            if ($qty > $available) {
+                $this->addFlash('danger', sprintf(
+                    "Stock insuffisant pour %s (taille %s).",
+                    $product->getName(),
+                    $size
+                ));
+                return $this->redirectToRoute('cart_show');
+            }
 
             $lineItems[] = [
                 'price_data' => [
                     'currency'     => 'eur',
-                    'unit_amount'  => (int) round($product->getPrice() * 100), // € → centimes
+                    'unit_amount'  => (int) round(((float) $product->getPrice()) * 100),
                     'product_data' => [
-                        'name' => $product->getName().' - '.$row['size'],
+                        'name' => $product->getName() . ' - ' . $size,
                     ],
                 ],
-                'quantity' => (int) $row['quantity'],
+                'quantity' => $qty,
             ];
         }
 
@@ -102,17 +130,12 @@ final class CheckoutController extends AbstractController
             return $this->redirectToRoute('cart_show');
         }
 
-        // Récup clé Stripe
+        // ----- Clé Stripe -----
         $secret = $_ENV['STRIPE_SECRET_KEY'] ?? getenv('STRIPE_SECRET_KEY') ?: null;
         if (!$secret) {
             $this->addFlash('danger', 'Clé Stripe manquante. Ajoute STRIPE_SECRET_KEY dans .env.local');
             return $this->redirectToRoute('app_order');
         }
-
-        // Ajout du panier en metadata (pour le webhook)
-        $metadata = [
-            'cart_json' => json_encode($cart, JSON_UNESCAPED_UNICODE),
-        ];
 
         try {
             \Stripe\Stripe::setApiKey($secret);
@@ -120,17 +143,15 @@ final class CheckoutController extends AbstractController
             $sessionStripe = \Stripe\Checkout\Session::create([
                 'mode'        => 'payment',
                 'line_items'  => $lineItems,
-                'metadata'    => $metadata,
+                'metadata'    => ['cart_json' => json_encode($cart, JSON_UNESCAPED_UNICODE)],
                 'success_url' => $urls->generate('checkout_success', [], UrlGeneratorInterface::ABSOLUTE_URL),
                 'cancel_url'  => $urls->generate('app_order', [], UrlGeneratorInterface::ABSOLUTE_URL),
             ]);
 
-            // Redirection 303 vers la page Stripe
             return $this->redirect($sessionStripe->url, 303);
 
         } catch (\Throwable $e) {
-            // En cas d'erreur Stripe → message et retour
-            $this->addFlash('danger', 'Erreur Stripe : '.$e->getMessage());
+            $this->addFlash('danger', 'Erreur Stripe : ' . $e->getMessage());
             return $this->redirectToRoute('app_order');
         }
     }
@@ -138,8 +159,8 @@ final class CheckoutController extends AbstractController
     #[Route('/checkout/success', name: 'checkout_success', methods: ['GET'])]
     public function success(SessionInterface $session): Response
     {
-        // Le décrément réel se fait dans le webhook.
-        // Côté client, on nettoie juste le panier.
+        // Le décrément réel se fait via le webhook Stripe côté serveur.
+        // Ici on nettoie juste le panier côté client.
         $session->remove('cart');
 
         return $this->render('checkout/success.html.twig');

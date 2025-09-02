@@ -1,0 +1,9 @@
+/* assets/styles/auth.css */
+.auth-card {
+    max-width: 420px;
+    margin: 3rem auto;
+    border-radius: 12px;
+}
+.auth-actions .btn {
+    min-width: 200px;
+}

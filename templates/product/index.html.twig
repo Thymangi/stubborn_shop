@@ -1,29 +1,69 @@
+{# templates/product/index.html.twig #}
 {% extends 'base.html.twig' %}
 {% block title %}Boutique Stubborn{% endblock %}
 
-{% block page_stylesheets %}
-  <link rel="stylesheet" href="{{ asset('assets/css/shop.css') }}">
-{% endblock %}
-
 {% block body %}
-<h1>Boutique</h1>
+  <h1 class="display-6 mb-3">Boutique</h1>
 
-<form method="get" action="{{ path('products_list') }}" class="p-filter">
-  <label for="price">Filtrer par prix :</label>
-  <select name="price" id="price" onchange="this.form.submit()">
-    <option value="">Tous</option>
-    <option value="1" {{ priceFilter == '1' ? 'selected' : '' }}>10-29€</option>
-    <option value="2" {{ priceFilter == '2' ? 'selected' : '' }}>29-35€</option>
-    <option value="3" {{ priceFilter == '3' ? 'selected' : '' }}>35-50€</option>
-  </select>
-  <noscript><button type="submit">Filtrer</button></noscript>
-</form>
-
-<div class="p-grid p-grid--shop">
-  {% for product in products %}
-    {% include 'partials/_product_card.html.twig' with { product: product, show_button: true } %}
-  {% else %}
-    <p>Aucun produit trouvé dans cette fourchette de prix.</p>
+  {# Flashes (succès / danger / info…) affichés en haut de page #}
+  {% for label, messages in app.flashes %}
+    {% for m in messages %}
+      <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+        {{ m }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
   {% endfor %}
-</div>
+
+  <form method="get" action="{{ path('products_list') }}"
+        class="p-filter mb-4 d-flex align-items-center gap-2">
+    <label for="price" class="form-label m-0">Filtrer par prix :</label>
+    <select name="price" id="price" class="form-select" style="max-width:220px"
+            onchange="this.form.submit()">
+      <option value="">Tous</option>
+      <option value="1" {{ priceFilter == '1' ? 'selected' : '' }}>10–29€</option>
+      <option value="2" {{ priceFilter == '2' ? 'selected' : '' }}>29–35€</option>
+      <option value="3" {{ priceFilter == '3' ? 'selected' : '' }}>35–50€</option>
+    </select>
+    <noscript><button type="submit" class="btn btn-secondary">Filtrer</button></noscript>
+  </form>
+
+  <div class="row g-4">
+    {% for product in products %}
+      <div class="col-12 col-md-6 col-lg-4">
+        {% include 'partials/_product_card.html.twig' with { product: product } %}
+      </div>
+    {% else %}
+      <div class="col">
+        <div class="alert alert-secondary">Aucun produit trouvé.</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {# Validation immédiate (taille / quantité) pour chaque card #}
+  <script>
+    document.addEventListener('submit', function (e) {
+      const form = e.target.closest('.add-to-cart-form');
+      if (!form) return;
+
+      // nettoyer ancienne erreur
+      form.querySelector('.add-error')?.remove();
+
+      const size = form.querySelector('select[name="size"]');
+      const qty  = form.querySelector('input[name="quantity"]');
+
+      let msg = '';
+      if (size && !size.value) msg = 'Choisis une taille.';
+      else if (qty && (!qty.value || +qty.value < 1)) msg = 'Quantité invalide.';
+
+      if (msg) {
+        e.preventDefault();
+        const alert = document.createElement('div');
+        alert.className = 'add-error text-danger small mt-1';
+        alert.textContent = msg;
+        form.appendChild(alert);
+        (size && !size.value ? size : qty).focus();
+      }
+    }, false);
+  </script>
 {% endblock %}

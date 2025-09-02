@@ -7,3 +7,8 @@ controllers:
 dev_test_mail:
     path: /_dev/test-mail
     controller: App\Controller\DevMailController
+
+app_forgot_password_request:
+    path: /mot-de-passe-oublie
+    controller: App\Controller\Security\ForgotPasswordController::request
+    methods: [GET]
