@@ -1,47 +1,51 @@
 {# templates/partials/_navbar.html.twig #}
 {% set isLogged = app.user is not null %}
-
-{# -- Compteur panier (toujours défini) -- #}
 {% set count = 0 %}
 {% if isLogged %}
   {% set cart = app.session.get('cart', []) %}
-  {% for r in cart %}
-    {% set count = count + (r.quantity ?? 0) %}
-  {% endfor %}
+  {% for r in cart %}{% set count = count + (r.quantity ?? 0) %}{% endfor %}
 {% endif %}
 
-<nav class="navbar navbar-expand-lg navbar-stubborn">
+<nav class="navbar navbar-expand-lg stb-navbar">
   <div class="container-fluid">
 
-    {# -- Brand -- #}
-    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('home') }}">
-      <img src="{{ asset('assets/img/stubborn-logo.svg') }}" alt="Stubborn" class="logo-stubborn">
+    {# Brand: logo + slogan empilés #}
+    <a class="navbar-brand stb-navbar__brand" href="{{ path('home') }}">
+      <img src="{{ asset('assets/img/logo.png') }}" alt="Stubborn" class="stb-navbar__logo">
+      <small class="stb-navbar__slogan">Slogan de la boutique</small>
     </a>
 
+    {# Titre centré uniquement en admin (desktop) #}
+    {% if app.request.get('_route') starts with 'admin_' %}
+      <div class="stb-navbar__center d-none d-lg-flex">
+        <span class="stb-badge">Back-Office</span>
+      </div>
+    {% endif %}
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-            aria-controls="mainNavbar" aria-expanded="false" aria-label="Basculer la navigation">
+            aria-controls="mainNavbar" aria-expanded="false" aria-label="Basculer">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="mainNavbar">
-      {# -- Liens de gauche -- #}
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="{{ path('home') }}">Accueil</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ path('products_list') }}">Boutique</a></li>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-3">
+        <li class="nav-item">
+          <a class="nav-link{% if app.request.get('_route') == 'home' %} active{% endif %}"
+             href="{{ path('home') }}">Accueil</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if app.request.get('_route') starts with 'products_' %} active{% endif %}"
+             href="{{ path('products_list') }}">Boutique</a>
+        </li>
       </ul>
 
-      {# -- Liens de droite -- #}
       <ul class="navbar-nav mb-2 mb-lg-0">
-
-        {# ================= Panier (connecté uniquement) ================= #}
         {% if isLogged %}
           <li class="nav-item dropdown me-2">
             <a class="nav-link dropdown-toggle position-relative" href="#" id="cartDropdown" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">
               Panier
-              <span class="badge bg-primary position-absolute top-0 start-100 translate-middle">
-                {{ count }}
-              </span>
+              <span class="badge bg-primary position-absolute top-0 start-100 translate-middle">{{ count }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="cartDropdown" style="min-width:260px">
               <div class="d-flex justify-content-between align-items-center mb-2">
@@ -50,15 +54,13 @@
               </div>
               <div class="d-grid gap-2">
                 <a href="{{ path('cart_show') }}" class="btn btn-sm btn-outline-secondary">Voir le panier</a>
-                <a href="{{ path('app_order') }}"
-                   class="btn btn-sm btn-primary {% if count == 0 %}disabled{% endif %}">Commander</a>
+                <a href="{{ path('app_order') }}" class="btn btn-sm btn-primary {% if count == 0 %}disabled{% endif %}">
+                  Commander
+                </a>
               </div>
             </ul>
           </li>
-        {% endif %}
 
-        {# ================= Compte / Connexion ================= #}
-        {% if isLogged %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">
@@ -69,12 +71,10 @@
               <li><a class="dropdown-item" href="{{ path('user_profile') }}">Mon profil</a></li>
               <li><a class="dropdown-item" href="{{ path('user_profile_edit') }}">Modifier mon profil</a></li>
               <li><a class="dropdown-item" href="{{ path('user_orders') }}">Mes commandes</a></li>
-
               {% if is_granted('ROLE_ADMIN') %}
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item fw-semibold text-danger" href="{{ path('admin_dashboard') }}">Espace admin</a></li>
               {% endif %}
-
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form method="post" action="{{ path('app_logout') }}" class="px-3 m-0">
@@ -85,17 +85,15 @@
             </ul>
           </li>
         {% else %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button"
-               data-bs-toggle="dropdown" aria-expanded="false">Connexion</a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
-              <li><a class="dropdown-item" href="{{ path('app_login') }}">Connexion utilisateur</a></li>
-              <li><a class="dropdown-item" href="{{ path('app_register') }}">Créer un compte</a></li>
-            </ul>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ path('app_register') }}">Créer un compte</a>
           </li>
         {% endif %}
-
       </ul>
     </div>
+
   </div>
 </nav>

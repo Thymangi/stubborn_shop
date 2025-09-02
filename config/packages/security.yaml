@@ -1,7 +1,7 @@
 # config/packages/security.yaml
 security:
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: auto
 
     providers:
         app_user_provider:
@@ -34,9 +34,8 @@ security:
                 enable_csrf: true
                 csrf_parameter: _csrf_token
                 csrf_token_id: logout
-                csrf_token_manager: security.csrf.token_manager
                 invalidate_session: true
-                delete_cookies: ["REMEMBERME_SHARED"] # <-- supprime le cookie
+                delete_cookies: ["REMEMBERME_SHARED"]
             remember_me:
                 secret: "%kernel.secret%"
                 name: REMEMBERME_SHARED
@@ -64,9 +63,8 @@ security:
                 enable_csrf: true
                 csrf_parameter: _csrf_token
                 csrf_token_id: logout
-                csrf_token_manager: security.csrf.token_manager
                 invalidate_session: true
-                delete_cookies: ["REMEMBERME_SHARED"] # <-- supprime le cookie
+                delete_cookies: ["REMEMBERME_SHARED"]
             remember_me:
                 secret: "%kernel.secret%"
                 name: REMEMBERME_SHARED
@@ -78,13 +76,9 @@ security:
     access_control:
         - { path: ^/compte/register$, roles: PUBLIC_ACCESS }
         - { path: ^/compte/verify/email$, roles: PUBLIC_ACCESS }
-
-        # Admin
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin/register$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
-
-        # Webhooks / publiques
         - { path: ^/stripe/webhook$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/logout$, roles: PUBLIC_ACCESS }
@@ -92,18 +86,7 @@ security:
         - { path: ^/products, roles: PUBLIC_ACCESS }
         - { path: ^/home, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
-
-        # Zones protégées
         - { path: ^/cart, roles: ROLE_USER }
         - { path: ^/order, roles: ROLE_USER }
         - { path: ^/profile, roles: ROLE_USER }
-        - { path: ^/compte, roles: ROLE_USER } # en dernier: catch-all /compte
-
-when@test:
-    security:
-        password_hashers:
-            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-                algorithm: auto
-                cost: 4
-                time_cost: 3
-                memory_cost: 10
+        - { path: ^/compte, roles: ROLE_USER }

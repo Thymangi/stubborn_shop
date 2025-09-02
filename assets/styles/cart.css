@@ -1,0 +1,87 @@
+/* assets/styles/cart.css */
+
+/* Carte produit */
+.cart-card {
+    position: relative; /* permet de caler le bouton en bas à droite */
+    background: #fff;
+}
+
+/* vignette */
+.cart-thumb {
+    width: 120px;
+    height: 120px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cart-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* libellé + valeur en ligne */
+.cart-field {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+.cart-key {
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+.cart-val {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* bouton "Retirer" en bas à droite de la carte */
+.cart-remove {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+}
+
+/* résumé bas de page */
+.cart-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-top: 1rem;
+}
+@media (min-width: 768px) {
+    .cart-summary {
+        flex-direction: row; /* total + bloc boutons sur une même ligne */
+        justify-content: flex-end;
+        align-items: center; /* aligné à la hauteur du bouton "Finaliser" */
+    }
+}
+
+/* bloc total (le “rectangle”) */
+.cart-total {
+    min-width: 160px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+}
+.cart-total__label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 2px;
+}
+.cart-total__value {
+    font-weight: 600;
+}
+
+/* pile de boutons à droite */
+.cart-actions {
+    display: grid;
+    gap: 0.5rem;
+}

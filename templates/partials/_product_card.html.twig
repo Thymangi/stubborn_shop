@@ -1,23 +1,26 @@
 {# templates/partials/_product_card.html.twig #}
 <div class="p-card">
   <div class="p-card__imgwrap">
-    <img
-      class="p-card__img"
-      src="{{ asset(product.image) }}"
-      alt="{{ product.name }}"
-      loading="lazy"
-    >
+    <img class="p-card__img"
+         src="{{ asset(product.image ?? 'assets/img/placeholder.png') }}"
+         alt="{{ product.name }}">
   </div>
 
-  <h3 class="p-card__title">{{ product.name }}</h3>
-
-  <div class="p-card__price">
-    {{ product.price|number_format(2, ',', ' ') }} €
-  </div>
-
-  {% if show_button is not defined or show_button %}
-    <div class="p-card__actions">
-      <a href="{{ path('product_show', {id: product.id}) }}" class="btn btn-primary">Voir</a>
+  <div class="p-card__bottom">
+    <div class="p-card__meta mb-2">
+      <div class="p-card__row">
+        <span class="p-card__label">Nom :</span>
+        <span class="p-card__value" title="{{ product.name }}">{{ product.name }}</span>
+      </div>
+      <div class="p-card__row p-card__row--price">
+        <span class="p-card__label">Prix :</span>
+        <span class="p-card__value p-card__value--price">
+          {{ product.price|number_format(2, ',', ' ') }} €
+        </span>
+      </div>
     </div>
-  {% endif %}
+
+    <a href="{{ path('product_show', { id: product.id }) }}"
+       class="btn btn-primary btn-sm p-card__cta">VOIR</a>
+  </div>
 </div>

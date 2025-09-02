@@ -1,0 +1,24 @@
+/* Footer */
+.footer-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap; /* passe à la ligne si besoin en mobile */
+}
+
+.footer-link {
+    text-decoration: none;
+}
+
+.footer-info {
+    display: flex; /* permet de mettre le sous-texte en dessous */
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.footer-link__title {
+    font-weight: 600;
+}
+
+.footer-link__sub {
+    opacity: 0.85;
+}

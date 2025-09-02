@@ -22,6 +22,7 @@
         "symfony/mime": "7.3.*",
         "symfony/runtime": "7.3.*",
         "symfony/security-bundle": "7.3.*",
+        "symfony/security-csrf": "7.3.*",
         "symfony/twig-bundle": "7.3.*",
         "symfony/validator": "7.3.*",
         "symfony/webpack-encore-bundle": "^2.3",
@@ -69,6 +70,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test:smoke": "php -d variables_order=EGPCS bin/phpunit --testsuite=smoke --colors=always --testdox",
+        "start:dev": [
+            "@test:smoke",
+            "symfony server:start -d"
         ]
     },
     "conflict": {

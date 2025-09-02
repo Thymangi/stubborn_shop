@@ -16,63 +16,12 @@ main.container {
     flex: 1;
 }
 
-/* ===== Thème Stubborn ===== */
+/* ===== Thème ===== */
 :root {
-    --neon: #39ff14; /* vert fluo */
+    --neon: #39ff14;
     --black: #000;
     --near-black: #0b0b0b;
     --white: #fff;
-}
-
-/* ====================== NAVBAR ====================== */
-/* Spécificité + !important pour gagner sur Bootstrap */
-.navbar.navbar-stubborn {
-    background: var(--neon) !important;
-    border-bottom: 3px solid #19cc03;
-
-    /* Variables Bootstrap 5.3 pour couleurs de nav */
-    --bs-navbar-color: var(--near-black);
-    --bs-navbar-hover-color: var(--near-black);
-    --bs-navbar-active-color: var(--near-black);
-    --bs-navbar-brand-color: var(--near-black);
-    --bs-navbar-brand-hover-color: var(--near-black);
-    --bs-navbar-toggler-border-color: var(--near-black);
-}
-
-.navbar.navbar-stubborn .navbar-brand,
-.navbar.navbar-stubborn .nav-link {
-    color: var(--near-black) !important;
-    font-weight: 700;
-    font-size: 1.08rem;
-}
-.navbar.navbar-stubborn .navbar-brand {
-    font-size: 1.18rem;
-}
-
-/* Toggler (icône + bordure visibles sur vert) */
-.navbar.navbar-stubborn .navbar-toggler {
-    border-color: var(--near-black) !important;
-}
-.navbar.navbar-stubborn .navbar-toggler-icon {
-    filter: invert(0); /* icône sombre */
-}
-
-/* Dropdowns lisibles sur fond fluo */
-.navbar.navbar-stubborn .dropdown-menu {
-    border-color: #12c400;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
-}
-.navbar.navbar-stubborn .dropdown-item {
-    color: #212529;
-}
-.navbar.navbar-stubborn .dropdown-item:hover {
-    background: #f6f6f6;
-}
-
-/* Logo */
-.logo-stubborn {
-    width: auto;
-    display: block;
 }
 
 /* ====================== FOOTER ====================== */
@@ -93,27 +42,23 @@ footer.footer-stubborn a:hover {
     text-decoration: underline;
 }
 
-/* ====================== PANIER ====================== */
-/* Même taille visuelle pour les boutons d'action panier */
+/* ====================== BOUTONS PANIER (option) ====================== */
 .btn-eq {
-    min-width: 160px; /* largeur cohérente */
-    height: 42px; /* fixe la hauteur */
-    padding: 0.5rem 1rem; /* même padding interne */
-    display: inline-flex; /* centrage */
+    min-width: 160px;
+    height: 42px;
+    padding: 0.5rem 1rem;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    white-space: nowrap; /* évite le retour à la ligne */
-    line-height: 1.2; /* normalisé */
+    white-space: nowrap;
+    line-height: 1.2;
 }
-
 .cart-actions .btn {
     min-width: 180px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-} /* forcer la même largeur dans la rangée d’actions */
-
-/* Option: en mobile, passage en pleine largeur et empilés */
+}
 @media (max-width: 576px) {
     .cart-actions {
         width: 100%;
@@ -121,8 +66,6 @@ footer.footer-stubborn a:hover {
     .cart-actions .btn {
         width: 100%;
     }
-
-    /* Variante sm si besoin ailleurs */
     .btn-eq-sm {
         min-width: 140px;
         padding: 0.375rem 0.75rem;

@@ -18,8 +18,23 @@ footer {
     text-align: center;
     border-top: 1px solid #ddd;
 }
+.about-logo {
+    max-width: 160px; /* ajuste entre 140–200px si tu veux */
+    width: 100%;
+}
+@media (min-width: 992px) {
+    .about-logo {
+        max-width: 180px;
+    }
+}
 
 @import "./base.css";
+@import "./navbar.css";
 @import "./home.css";
 @import "./shop.css";
 @import "./form.css";
+@import "./admin_product.css";
+@import "./auth.css";
+@import "./cart.css";
+@import "./checkout.css";
+@import " footer.css";
